@@ -1,0 +1,340 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans,system-ui,sans-serif);}
+#wrap{position:relative;height:100vh;min-height:640px;max-height:860px;}
+#app,#admin-panel{display:flex;flex-direction:column;height:100%;border-radius:var(--border-radius-lg);overflow:hidden;border:0.5px solid var(--color-border-tertiary);}
+#admin-panel{display:none;background:var(--color-background-tertiary);}
+
+/* Header */
+#hdr{background:linear-gradient(135deg,#1D9E75,#085041);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.lion-circle{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.6);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.lion-circle img{width:44px;height:44px;object-fit:cover;display:block;}
+#dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:#9FE1CB;border:2px solid #085041;}
+#av-wrap{position:relative;flex-shrink:0;}
+#hdr-info{flex:1;}
+#hdr-name{font-size:15px;font-weight:500;color:#fff;}
+#hdr-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px;}
+.hdr-btn{background:rgba(255,255,255,0.18);border:0.5px solid rgba(255,255,255,0.35);color:#fff;font-size:11px;padding:5px 9px;border-radius:14px;cursor:pointer;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,0.28);}
+
+/* Chat */
+#chat-area{flex:1;overflow-y:auto;padding:12px 11px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth;}
+.msg-row{display:flex;gap:7px;align-items:flex-end;}
+.msg-row.user{flex-direction:row-reverse;}
+
+/* Message avatar — lion circle */
+.m-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#fff;border:1.5px solid #E1F5EE;display:flex;align-items:center;justify-content:center;}
+.m-av img{width:34px;height:34px;object-fit:cover;display:block;}
+
+.bubble{max-width:76%;padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.55;color:var(--color-text-primary);}
+.bubble.bot{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-bottom-left-radius:4px;}
+.bubble.user{background:#0F6E56;color:#fff;border-bottom-right-radius:4px;}
+.bubble a{color:#1D9E75;word-break:break-all;}
+.bubble.user a{color:#9FE1CB;}
+.bubble strong{font-weight:500;}
+.time-lbl{font-size:11px;color:var(--color-text-tertiary);text-align:center;margin:2px 0;}
+
+/* Typing */
+.typing-dots{display:flex;gap:4px;padding:4px 2px;}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--color-text-tertiary);animation:blink 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+
+/* Feedback */
+.fb-row{display:flex;gap:5px;margin-top:5px;align-items:center;flex-wrap:wrap;}
+.fb-btn{font-size:12px;padding:3px 8px;border-radius:12px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;}
+.fb-btn:hover{background:var(--color-background-secondary);}
+.fb-btn.g{background:#E1F5EE;border-color:#1D9E75;color:#085041;}
+.fb-btn.b{background:#FAECE7;border-color:#D85A30;color:#993C1D;}
+.forward-btn{font-size:12px;padding:3px 8px;border-radius:12px;border:0.5px solid #AFA9EC;background:#EEEDFE;color:#3C3489;cursor:pointer;}
+.forward-btn:hover{background:#CECBF6;}
+.forward-btn.sent{background:#E1F5EE;border-color:#1D9E75;color:#085041;cursor:default;}
+
+/* Quick chips — top 10 */
+#chips-wrap{flex-shrink:0;background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);}
+#chips-header{display:flex;align-items:center;justify-content:space-between;padding:7px 11px 4px;}
+#chips-label{font-size:11px;color:var(--color-text-tertiary);font-weight:500;letter-spacing:.3px;}
+#chips{padding:0 11px 7px;display:flex;gap:5px;flex-wrap:wrap;}
+.chip{font-size:12px;padding:5px 10px;border-radius:20px;border:0.5px solid #5DCAA5;color:#085041;background:#E1F5EE;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;}
+.chip:hover{background:#9FE1CB;}
+.chip-rank{font-size:10px;background:#085041;color:#fff;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:500;}
+.chip-count{font-size:10px;color:#0F6E56;opacity:0.7;}
+
+/* Input */
+#inp-area{display:flex;gap:7px;align-items:flex-end;padding:9px 11px 11px;background:var(--color-background-primary);flex-shrink:0;}
+#msg-inp{flex:1;font-size:14px;padding:10px 13px;border-radius:22px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);resize:none;outline:none;min-height:40px;max-height:100px;line-height:1.4;font-family:inherit;}
+#msg-inp:focus{border-color:#1D9E75;}
+#msg-inp::placeholder{color:var(--color-text-tertiary);}
+#send-btn{width:40px;height:40px;border-radius:50%;background:#1D9E75;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;}
+#send-btn:hover{background:#085041;}
+#send-btn:active{transform:scale(0.95);}
+
+/* Admin */
+#adm-hdr{background:linear-gradient(135deg,#534AB7,#3C3489);padding:11px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0;}
+#adm-hdr span{font-size:15px;font-weight:500;color:#fff;flex:1;}
+#adm-tabs{display:flex;flex-shrink:0;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);}
+.atab{flex:1;padding:9px 3px;font-size:12px;text-align:center;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;}
+.atab.on{color:#534AB7;border-bottom-color:#534AB7;font-weight:500;}
+.atab:hover:not(.on){background:var(--color-background-secondary);}
+#adm-body{flex:1;overflow-y:auto;padding:12px;}
+#adm-body::-webkit-scrollbar{width:4px;}
+#adm-body::-webkit-scrollbar-thumb{background:var(--color-border-secondary);border-radius:2px;}
+.sec-ttl{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:7px;letter-spacing:.5px;}
+.drop-z{border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:18px;text-align:center;cursor:pointer;color:var(--color-text-secondary);font-size:13px;margin-bottom:9px;background:var(--color-background-secondary);}
+.drop-z:hover,.drop-z.ov{border-color:#534AB7;background:#EEEDFE;color:#534AB7;}
+.kb-ta{width:100%;font-size:13px;padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);resize:vertical;min-height:70px;font-family:inherit;outline:none;margin-bottom:7px;}
+.kb-ta:focus{border-color:#534AB7;}
+.add-btn{width:100%;padding:9px;background:#534AB7;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;margin-bottom:11px;}
+.add-btn:hover{background:#3C3489;}
+.kb-item,.log-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:7px;}
+.kb-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:7px;}
+.kb-ttl{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1;}
+.kb-date{font-size:11px;color:var(--color-text-tertiary);white-space:nowrap;}
+.kb-desc{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.4;}
+.del-btn{background:none;border:none;color:var(--color-text-tertiary);cursor:pointer;font-size:16px;}
+.del-btn:hover{color:#D85A30;}
+.log-q{font-size:13px;font-weight:500;margin-bottom:3px;}
+.log-a{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;line-height:1.4;}
+.log-meta{display:flex;gap:9px;align-items:center;font-size:11px;color:var(--color-text-tertiary);flex-wrap:wrap;}
+.fb-badge{padding:2px 7px;border-radius:10px;font-size:11px;}
+.fb-badge.g{background:#E1F5EE;color:#085041;}
+.fb-badge.b{background:#FAECE7;color:#993C1D;}
+.fb-badge.n{background:var(--color-background-secondary);}
+.fb-badge.fwd{background:#EEEDFE;color:#3C3489;}
+.stat-row{display:flex;gap:7px;margin-bottom:11px;}
+.stat-card{flex:1;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px;text-align:center;}
+.stat-n{font-size:20px;font-weight:500;}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.empty{text-align:center;color:var(--color-text-tertiary);font-size:13px;padding:24px 0;}
+.email-row{display:flex;gap:7px;align-items:center;margin-bottom:11px;}
+.email-inp{flex:1;font-size:13px;padding:8px 11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none;font-family:inherit;}
+.email-inp:focus{border-color:#534AB7;}
+.save-btn{padding:8px 14px;background:#534AB7;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;white-space:nowrap;}
+.save-btn:hover{background:#3C3489;}
+
+/* Top10 admin table */
+.top-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.top-rank{width:24px;height:24px;border-radius:50%;background:#085041;color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.top-rank.gold{background:#BA7517;}
+.top-rank.silver{background:#888780;}
+.top-rank.bronze{background:#7A4A2E;}
+.top-q{flex:1;font-size:13px;color:var(--color-text-primary);}
+.top-cnt{font-size:12px;color:var(--color-text-secondary);white-space:nowrap;}
+
+/* Login */
+#login-ov{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;border-radius:var(--border-radius-lg);z-index:20;}
+.lcard{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:22px;width:250px;text-align:center;}
+.lcard h3{font-size:15px;font-weight:500;margin-bottom:4px;}
+.lcard p{font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;}
+.lcard input{width:100%;padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:16px;text-align:center;letter-spacing:5px;outline:none;margin-bottom:9px;font-family:inherit;}
+.lcard input:focus{border-color:#534AB7;}
+.lcard button{width:100%;padding:10px;background:#534AB7;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;}
+.lcard button:hover{background:#3C3489;}
+.lerr{font-size:12px;color:#D85A30;margin-top:6px;}
+#toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;font-size:13px;padding:8px 16px;border-radius:20px;display:none;z-index:30;white-space:nowrap;}
+#chat-area::-webkit-scrollbar{width:4px;}
+#chat-area::-webkit-scrollbar-thumb{background:var(--color-border-secondary);border-radius:2px;}
+</style>
+
+<h2 class="sr-only">萌萌的東元獅 AICU問答機器人</h2>
+<div id="wrap">
+<div id="app">
+  <div id="hdr">
+    <div id="av-wrap">
+      <div class="lion-circle" style="width:44px;height:44px;">
+        <img id="lion-hdr" src="" alt="東元獅">
+      </div>
+      <div id="dot"></div>
+    </div>
+    <div id="hdr-info">
+      <div id="hdr-name">萌萌的東元獅（問答機器）</div>
+      <div id="hdr-sub">AICU 同仁專屬小幫手</div>
+    </div>
+    <button class="hdr-btn" onclick="showLogin()"><i class="ti ti-settings" style="font-size:12px;margin-right:3px" aria-hidden="true"></i>後台</button>
+  </div>
+
+  <div id="chat-area" role="log" aria-live="polite"></div>
+
+  <div id="chips-wrap">
+    <div id="chips-header">
+      <span id="chips-label">🔥 熱門問答 TOP 10</span>
+    </div>
+    <div id="chips"></div>
+  </div>
+
+  <div id="inp-area">
+    <textarea id="msg-inp" placeholder="輸入問題，東元獅來幫你🦁" rows="1" aria-label="輸入訊息"></textarea>
+    <button id="send-btn" onclick="send()" aria-label="送出"><i class="ti ti-send" style="font-size:17px" aria-hidden="true"></i></button>
+  </div>
+</div>
+
+<div id="admin-panel">
+  <div id="adm-hdr">
+    <i class="ti ti-settings" style="font-size:17px;color:#fff" aria-hidden="true"></i>
+    <span>後台管理</span>
+    <button class="hdr-btn" onclick="showChat()"><i class="ti ti-arrow-left" style="font-size:11px;margin-right:2px" aria-hidden="true"></i>返回</button>
+  </div>
+  <div id="adm-tabs">
+    <div class="atab on" onclick="tab('kb')"><i class="ti ti-book" style="font-size:13px;margin-right:2px" aria-hidden="true"></i>知識庫</div>
+    <div class="atab" onclick="tab('top')"><i class="ti ti-flame" style="font-size:13px;margin-right:2px" aria-hidden="true"></i>熱門排行</div>
+    <div class="atab" onclick="tab('logs')"><i class="ti ti-messages" style="font-size:13px;margin-right:2px" aria-hidden="true"></i>問答記錄</div>
+    <div class="atab" onclick="tab('fb')"><i class="ti ti-thumb-up" style="font-size:13px;margin-right:2px" aria-hidden="true"></i>回饋</div>
+    <div class="atab" onclick="tab('cfg')"><i class="ti ti-mail" style="font-size:13px;margin-right:2px" aria-hidden="true"></i>設定</div>
+  </div>
+  <div id="adm-body"></div>
+</div>
+
+<div id="login-ov">
+  <div class="lcard">
+    <h3>🔐 後台登入</h3>
+    <p>請輸入後台密碼</p>
+    <input type="password" id="pw" maxlength="8" onkeydown="if(event.key==='Enter')doLogin()" placeholder="••••">
+    <button onclick="doLogin()">登入後台</button>
+    <div class="lerr" id="lerr"></div>
+    <div style="margin-top:8px;"><button style="background:none;border:none;color:var(--color-text-secondary);font-size:12px;cursor:pointer;" onclick="hideLogin()">取消</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+</div>
+
+<script>
+// ── 東元獅圖片 ──────────────────────────────
+const LION_HDR_B64 = "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";
+
+const LION_AV_B64 = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAbNElEQVR42qWbebBlV3Xef3vvc86d37tvft3qUWqpabXmEaTCTM0QEDNhECGBEEMgDrGrcBJs45jCdsqhQhkqVIwKY5TYAYSDsYGABVgxICGhAYTUQt1qqVut7jfP747nnL1X/jjnzvdJQG7Vq+5777n7nLX2Gr71rbWViAgIoPj/fwniHABKm/ancRQS1qsAZPJFjOe3v3M2RmsDSv3K90xeasjn6ll+k3zn7fyD7oX7bzLsO3DWok2y5PKZxzl1799z/vj9bC2epVmvAJAtjFDefZD9V72QS25+DcWJmURx4lADSuhdv/dznkM49RyKSD5Xwy1gmMDPrhxnHdoYls+c4O6//ARP3vttmtUtjOehPT/ZZcA5i41CnLWUJndz7Rvez/Pf/iG0MakSNIggCOIEcL33VgqlwBCDee7d/gUUIM+i9Z3ldy7Z+Z9843bu+u33CWtbZAojaOORLJ8I1PqRUsmfjULqW+scuvk1vOF3P0eQL7RdqGVJO72cjVFaJ1bTlrFrw3rk3lm2VAGt38kQXxQSGRxI724opRARtPG454t/yl23fZRcaQzt+ThrAUGh0lsOKlUphfZ8tlfmOPLit/DG3/9821Kq68vMPf4QK2dPUt9cRSlFYXyG6YOXsvvItQS5QrKqsyitf4kY1quI53ABcM61H2qn12N3/Q1f+/i7yZUnErMVN8Q0ZceQpT2fyuoCb/7YF9l1+Eru/p+f4PQD/0BlbRFnY1DSXsL4AeVdBzn6sn/K9W/+AJl8EbEWZcyvEDyHxoD0QdOPldY4a3nm0fuYf/whtlbm0MajPLuPg9e8iNzIOJ//1y+iUVnHeJnEUnaMG4MmKAgKjbMRhfFdxGGDrcUzZIpljBckMaFbdSLEYZNmbYupg5fzuo/8GbMXX5G4odZD1Lvz5nYpgEHhU189/r2vct8dn2b5zGPYqIkoUCicsxTK05SmLmBj7kk099OxlO9YtHMvF0egwPiZnbOLKwhs8pBSaOMqhtMFbiNVN3aX7WwpCaOeSbAdDVL1GUasJx5VlqPuexFHMG5cO3C4y3RxLVIxLCwB9iO3RqFZRzORXjfP0d/zTm9Qi8XqXzCfnk03GVZ8muIbXmfbqRaVW28g6r8mSidMIi2OuS0HGOyoFJiahVkVBh5mnCqyN6bVXwMjEqoKNWgkGGJvHkJsHQqHr4+qYoU6ziyWxeClwkDWlDNqQ+x3LblI5xXJL4QEQGkJJh5VNcIk5IohvWVhUDSEdmvF3C5K+IFBQBuqGlJbORMiUvpzSQ7vd71lxrz4L3R6bvobzd7dEeJKX2z/pI6kYGa+5gGP3siyK4J6HM0OsNNheBiB0GxZbeMWHPXLumEjHxf5kLbfpGIbFh6L1f0GOqiIkEHCRiLELSuqbqCb0FG2ZFirm8+fH9UMJe0yVR0lWEJpQ+aRSfVbGeMlF+MgKy8G0fJN/JY/8g6t7abBVBiosmH7XNoFe5e95LPP5gzfxqBaInl6l1eqRZ7BCPB2a8t/P7Y2yvqnwGHa15KOqFh3d2JJ9J6GmhIEiGqBlCpAI2LgGVcTFQbHb2MZxFf/Kqf1Rp80+cRKg7F0eMBR26F1VxJaxqcpVxe2tLzknO6u5Kpq2BhI28VDpX3JiF3BsKVHy+KJnmn0aqSSm8bIyYHbVYI1z9OzuYJy+kQa4lIhGfcmIIr6j/0OM5IZjKA+0bBmT83zqYSmRDLFEcJBRIBNj8bWGVXFKZL7jqRqLVxFCBb1XBBGI8tPCvHQv1U2EMW5p+IvRl0vNblmzNSBsYFqgGNgIHaMILFh02ZJRn1VKa+uSGqhFSA9G6UpVXYFZVxSwLbblHBHVbCJH+dJUbcBXCCSmGSn3Bq7hj3lkTbN5V7TpQj9yTlPNVmK+IVdCnAI1lKTi3SnHPz7yVJY8rkjuF+NkJwlO1RenUHH9NG49BSX87VIjV+MgbEi5pxkWYSTW8jjn9Gm1YcFXXpfV3jGXR68t8WGXBFMKZ3iBXmxP9GjWLW0C2c0oQQf8ZKhQO8mMl/HzqYJj2RG44AqocUJWdYt1CDCrO2RqIjq8TMzY2u4BqV0lkXRUOSCW4R8u8j8h5mPTNqeOtJw7d6p4g7u5OONJ/U6xomN7dDVm41xhF8VIiqSW0+oQvgGdR6LUhFKvJAcEcB/fqDqMB2CZb9cMVSoOi7B9GAfYq1HVEX28XidLkU3eoujEqMqJlxH1yiJMd9GaT9bAZjFsBzI5wX1x3YhAm5pFYVGXWXR0jLAfHELdxWtGxF0Xep0R39r1AeTGsOKJiDcb0XyJQ26HT4V6EhwDnMFSzTn4LtN9wWUKCQZ1hZVgFqM1GHZNqXFiLcmCJiM5MsT7d5UD84cNLvX3xbGF7DL6gBJRWEFCwIq7LJjFRGRlCpJTFn7ghCFwEfwgxQR6NiJwbhKSIkKbMJjaqomY7QVxBxMKJVDjVGAqJNhCz4RHkpPjKgJ6cg5dWtAn78TDQqUi1n3+9U4fjuqv42yp4n/G2sMl9VtFyA/hmMmWJRNVr5E+JLy/9RrqGVJjWmSmXaStAGtblKWkn8fJxFkqhV2BhcBTDqYLhRtJFQjnrEcmT6lTPnxXAO2K0iqFGWREoXJXFJnGV8YhLAcVQ8/7QVEkmGpFb13PMMtlIahqFSs5MqhFJAkzDhGr2Ley9fJSqH8A3qVN1FLHIJzFIZ1ER5VbHKh9i/VNZKi8/1NRWXHK+8O+0wQnnvU9pX8sxh8dJOX4QT8LpbbYnS/xmvxCYF/dPxF3bTibm4IqD2L1KR0OqEbXOBhUwYKIDL8eEjNTWr9TqSxdYe7ZdPqm9hCkr8AZwK3y4MDHagNkj5FPRiMWmIpP2TqUhCimD6QVr28PFj0E2Q2c9qUFoV4Gy8ZO4J5DFe3kFLV4aTn4dSQwCFCPR7PVm8aRyuMb7fCt2BpNdUEy4OgHYOEeMRCODJBk0VzrVJBDrBMf2lqBuaLrHtirxs1v0ajLHlKpwlPy8DZnV3Jdp6kbbSSmaK48EJLV/ILfKp7T6nSWuZ4sN5uNkmZDj7NJC4cIc+aN2MrJvYvlJfJQiVPpT7VXOUFkLQ9W+p1+VKH0O9HlIGRGQDsD+gDMfR+0W5KSvJXyBuJdPHfwOqHkmqx0MAqRbqBnHR4wT2TLpR9MZFCTaSFUQB5H9Cz/0MU0mHEG+SRQAT2xmNRCJHNlRl5mMkDGUlAx4HkLMSY7TVMK1NjF6YT/sDCmtmjKPDPaVmRajJIYWkqhiLhMWNZiGT8vgINzPTZqiB5/g0C5tGN/IQ2CRxlKL/IZmYbCRdJsKOdwPnQOGSYE4OTQcZ2IaJIMFx5xP7WfRPjYh1JjQC0CXJBF6m23LNWEXhQHiK5P6FE8hUXVYJ2BOJrHJjCKN7LyCWJfN6gfuIstP9cVuQ4pcqS3LTpnF0Xa4TtIVqMBT03GqS2bT0FQEKFkoCRnqSaRFd3NsTFsHE1fFw4KhXNH58ISi2idDbbqD3VIPovZ7bLj0VF7KFJbZH8lO8Wb/Mq5CjaTJo5CifEwGaE4e7bxfobFXHcBN88cQIlgMSjS4KpPGaSLMaVhxJGsPy2r3Y3bVeqOiGaVXpq8f2dYJtcaJP6N/yiCbMUdyCX3kCN4M0u2I5wAKBpxqWfaGvCagkG6lfXk2YQ7Gf4lxHlVRTJfLpFYkDlQEf7q5P3FuT44CoBHBMb1DFlbGRqJFXYz9b3B9NjjrKI4mkXqZIFyJFGS5BHDE+lbTzc3ZFpQPlJMeLSJsBfmqvGflh3A+TipC7bIMJgqOZVDiJ1QrVMf7JQ6ZQbijjcYg+1pX49X6JRqSBfyNq4FFCF2g5cJTmHzK0lQBQqJVLitBUEFqjP42pDXz1RlJOALdqKR6hVJ/TrpWX8p7MfPLv0wU3Px29g8VbkRoFimJLT7LHTRa5DfFkHZ8LIBpBv7sKJ5gVN8Kz2rlEfhb7h1FQIZ1aSxI5lq3n6V/vvtCwZ1p6bJVvAOZi1l6P2k4qqS5iqyNdIoSqUeX2bCidPm0a0cBlW7qE/wRuF7PQb/lBpHfk/GzpSa/TFagGlz7w6TBaeTWAQnbfm7zGz5E7cXVHSvJfxsAiK1X3LPAQc14J8GlSrAaZ2tlKmh2Bx7d2gf7tLEWmk4n3L2fMn6qIB4FfbHGUFsMIzT+k1Y5AuZPsLJKJjP0XBiMZ84e1WyITMSILPYV78h2zM6sHmZiEdeMIFRAnFMxkDQgkN5K9FkA3lDRgCSG+g5hLbhpXPv4h1dEpVN2yH9GGHEkKbbdNYoGvdL1Fqa8Hf2wJiHi+wNJ9wnk/3o9j6kVFnobCpVk3H+s2/JjFKiO1b+6y9nfqBTdVo4lpRlD0C1VjVhUjVB0KLGiPi0hVG7A7mIDMiJJCXiHFPdP8Oi0fTiN4sJnR4Jiv5OmDUf8ZzR0Wq1N2WW9FIgFLbdPdoQMV6WZaHYaU1fGm0k4c7DFb15FxJSTXB0qFiT/hSp28LkEd1mWCnHxJ5KqXpLNRIjv0Lq90v9nAoE5N/XS9XtDrkBFj10MEzVOCWqEMi9uZMPtLNgmZdS7JRxIxiLMbLfmMQJIoHXLIfWvxM5TmyFjKXUMm7IplWM4BmwwXNuE0IRO1ZO4IifR+hJxWqq6h7h+cN6Vqs9s5GkL/1XFZ3TF0A1Bax6k3JjX0BoJO3V2Pj7SHW95DjRiJzDEGP7mRK8VjQiCY0j6yOUoS0kXUaX4FQoMSs52UcxaegAqFxGRVmgk2qvJdVh4jX0fRWB2XLNOlImh0v5rNK1fJR5bnBKniVa7oQzHfGb3hW7qkh1AjY7o2TISp0kOBRFbxvWQi3MuV7l66FUq7+Bv/p8t5rFIlFHlLfWJSmMkPYlW/Yw+xYbRSjD0T87pXVmcRLG3DnRJBJoJSTF7dA+UbsZ2K7bgVosMXXABbVXRbefNsFvXKfZ+Y79CJibpIkrn9FuE0HrmNxhEy3+RiSLhF/bqMh+gC8uJ0Ua1IiYQEuSXhBnqxSwFbNxc29h9/SIuuON5vJ2RJqP4YLnk+b8LB0S6w7kIJYagKSpOvhiNSYGh6GodJfSuwXAfEJEVKrxCl0y5LHvNBs7fmAiQvKD8lJDQT6NhVLt1dFjRFbOJyCUANNFI1MJlNJjm/LcDIHnEhEwZ5Z4nkIfWpJmC2G0QlXFxY2zDoK3pRRilzWg1OqdFDT1CIeU+Qzn4Y9gXxKt+yR+t9P5Ga3G4ywM4dqFj6i0J3A6A1WF9r1jFCIlIrL6PcxoHZO2IM/0gR/wuqUQsqjQ0kplUrBGTKNNtcJZPjDtxfLU0VKdF1fB+PXlYPi0j9/AelH31wkx8Y7hJvWZ8+8bAC/mCiGHpBpScUu4xH37jFH8GIvLfKd6vS6JfE6ylQEjnb07kBBwBeTHGDtWJe/Yvs1UBbJzlIy7CMYFLX9FNqHcZFa4u3AqT2Wp2B8pYTgGK7+MYJx8j/x8rS7Qq7lJZkNMHoNLlXcClYDJW7a7WiNyg8jXN9dQIe5o9bJfYvbKKl7bW5LWxB1c8FGWPZKxhcuMqr+FgMJxNNqBMk4PJl3HSpnPlkR0v+cNVBv+nMjYGqLRGKkqL1XBK/3RNh6PjbFl/Hb6wD+y5FKQB0WixkVBFCN8JXn5cpFxW5gMDjBX1bI3rcJOO4t0U0oFRFgVZW1v3r3bq7J+5JI0J/6kgbsmPm4qDJKjbdKe9VuHFy7WMRimMJKCjkLsMqyVGb+c5MX9XGlXUNQ2Wf6Kzba4E1uA7O8hkIOX1pj19AJjNY2RlU8a7fJP0RYKM2+H/WvfBVEolpBbIaJ1lT16c0T5kpvPJ4llBfhRBq2yg5Y4j5cpJOuuFpg/IFd/8Yb1vCFuNJjzrEbRQ9HZyv0Ztc7yjKUGJnFB5H6cZj//g3Vc/lDuRlfM2gXjJXSBl49pYm8DLwLmTJSEMvNxknbBrJPe6kqlomIyH6X1e5sZeaTq8o4n0bhGX3IvFpv2gKM5kTm0v0a7wGDi/xY4TU1hpJMIqpQZ1MCotcYCnS2Ci/Ux7kIHxeaAFUFqJWBPp0cYqHpGH9SqEPqYFf03P4FxGrV5RVFqx01SHWzFMD4vWNb9JGlQqUZ2qEKYX3XxM3t5qT2yAJifOVtBFVFouyOSqmFaBMOAG1TqFNxZcJxaLPl0amF1PtGLrHqFWRWmWUSRV41SJPIB4DaTlQ3Mk2GgTcPuTl47m10XBIjCZ5KMeQAXoOHvFjwOBbGIDanZ8tYMmW0EGQRueTalXBRF7x3Y5I5fmLqBM1GHJVsYt/HLQ7DRKY0I63oTOUKMYHKE3oLBBX8T0hV1yPnNWYDPfSHCMqJ27yVGJjOXHmpHrMRdTmv24dGKBCNxk1nISmIlV6GrjFl3s8RXHU2KcS1/E8mqA8X9xVz6DhxmotdqIqZsF15Qtp3lUJQqfLNkyU56GKipxBqUV1aGasWRYGqBPIIlmq8VCjbRq5Y9Xe2R4jVEFEJHFakp+H4OyI9TrCvYpPyQ4B2I0aBabJQh4e8x1MdRE6y+HWLfpP/6Nf3t4Nj3FYrmXJ8p+uK7XHkNcaYIFnqOIe3MwHFEPBOABDMPIDFoCXQN0GjhA8h5hVqLPVpROyXHtWHkSdJOLkW6LVvt5h1ufDMi9HNV1SqRR3O9iGrJNMEnjzJ0m7FS2V4nTzlmZHYDaMEm5i5UUGmvJx3E8ZqE6RSmb+p5Aup7QFXK5A+jOqDiHq8h0xeLcpSEBEf3bEXGkU3VAfcCZONJJZ7PrN6x5vGpNpHp3W18nPQfIGNVXA4M0h2Vj7oXvhFOaEI4f2z5HmBMJYRN3VV/C2WnUFsTwX5lLfLo+L4AivmM/0n5dq03MLiYoXdZEHMmR3BrLrSpJFjxkf+RzU6eeaM5Hk7OJ9lJa8FKXB2tGSHMPJZ5bpXy6i7F1ZC6oHkaxaxMBN7OLl8bJGXimEzCQ1H3dHDFIPmJtfFVL0GxY8Iik82YWyLLU5yJHPQgXqhJpWQMmf0teSu+y/NrlS2LPPaCt6K2hFnR8IpkKJSR6hAVAhvwFPc2wRflhD0cpHsFOGRGBkyf0VXvKT8Q8Y2iKLkR0EFpMRV6U3pE2hzV5goCDMPnGp4Tqq1H0hluC8KdMsE2g9zW/Q3UfkDagY8I6UDqCHZOxwHcz3UZkCO7bKIfsBUk1fCpuRmVnqLklBHN2k+v+h6M1VKdP28caCUeTuFjKsF7OVWb2tYh+PJlXkd+Wa11pD3pFGdvFBEqx0V2s2VJ5I/4LbwcBumEqdNtcCBbZFv8pF8BqF2lj1Sb1PVPZ7FnYEVVr7F1bJY5WkLALVJPMRfLQqJbZHjGPwjMIzFGv3y8Q/w0hZFTsj5JQV27SsME4p3Fhx3+GWuqN7DWHUVIB3Eo3p8lbTFQhqilicKqF6oc3zBBQlM9mBSBGa5EHNVVRGPEYdJDWE0vN7K4Y9xf4Z+/pEilYUXK8vOAuLnE6RVkiKJkivzqVWCqFWvxR0idRCOFNK9XOgWJkNbzNTEqhbOW5bBi/I2i3/pjJUf3oFqFOFSbUBf2fB5FnTh4l5qdAVz3j7mOUxJ4MHatm7fqaTzVNBFUHFfpkNYJ7GEaL0iGoIqA6u7yjr1DuHl1D4xfNGWFT/xbP1OVarDH9CXLJbpCf1qm6fH0O0x8XbqVWm3/YegvM+hWCJopFEJgTR0rV1LBkE9uZ0h4X7HaETBCsyaHnpEUVWZf0hJF4BRfpIBjJdHHmDlIe0WxT14PNJhRNSKUxLxobocvEMoqJKdGQe5i5O+G1pSq7FT5VRbEXHe0Q3J4l0wY7X6pRO+UVlFpJrLXMGDqpMEbJ2c4RqV6MmLfVGUb/dIBJa+z3TyrNQ0yPz6i6t2C3YFJdGqgkYDYsKkamHmI4pkq3Sxj5RTZP9RMx7dn5e4i62Z5V07QI3GBMwB7E/Y3ZwA59hm4bTxOc6U29lMumqNv8pJVYnhiZRl+v71j/AHpMHIifGn2j31xMpNxAlxgD5w5fNrxnnL4TwZNcGl0cCGHKYG4GN4emqUBU5OfHZ12EQAP41AH7M2qhb9xpLfMEpN3dI6Rkq1WRl9Ru4sJxPWqnQGV1pXpnS/F7qnBWEtjUDmFy2xWNXqW/1qEpM9AGZIH4WuGTg9p3FH4fHn0bROkHxp4v1bA8MPBSwMY+1W3jLH+aZRHb0p8bh/Yh7DWGCuZ1L3HSDtqJhGvSqvFRlRvFW8UpFTe0zN6oJKB5VJH0BJNM5X3x8o7fXlRDH/rB+n/lZVqh3jrA/hZVHbnLYEI5WLBM4+MdMulEoX3CmJjqBpQVjHW8bTfMiHsmxNaHU0htVVaqO2SrpCTJl8TjS+jj3gDJL4pRumNT5MhtYpLp6gXHcXq3hWqXHAH/FfKJ/tqB6I39G3GvYEjRcU7NP6Mx4sVLkuN+uBtYb57dFB0AwzGxiGqpMcq4OBqGMkX0gJtmrOqD2l2e/T84g0+r7VBILKnVGfpx4gBLx8uUq6hf4k8vP/rKdR9sY8nqFbFNfxH6b+5u2/sCNw5N8WivKjlTK+sS2oq5C8BBMAK5ixWTbFkFlH8bZsQX2BomHdAOUAlTJTq2Z3bE3S/HxCVuHBPJDmMXC+YgBJGJeJjIYnDEqSIJ4gzCLzOdmLdJRi2vF5Ij6mJ7LqvlHY78sV3Rc1H2nMKr5SKZJBjRaQTRSd/aCqNeTKTlppJDlqGPFn/PFiAWVGm3gBRVuvJQnJhDnFiX6dSqR0rkOzZaQ/y3Ynzx0JOi6+RBRXqzZmqvCWQfJwqpWVBN3K9gWbvhVmJLBCacVf7lxgIaRf+GjZ/eIOOqwT8nRRl5mJnlLAqJAJj+UM";
+
+const FAQ = [
+  {q:["在職進修","公假公費","報名費"],a:`【ICU在職進修 懶人包 🎓】\n\n❄️ **兩周前**：出「在職進修申請單」（附課表）\n✅ 注意：線上報名填抬頭「東元醫療社團法人東元綜合醫院」、統編 78025920\n\n✅ **前一個月**：預公假（ACLS 含在4天預假裡）\n\n✅ **出發前一周**：Key考勤「出差單」附課表\n\n✅ **當天出發**：發票打統編 78025920 / 高鐵票鉛筆寫名字 / 拿報名費收據\n\n✅ **上班日立繳 → 行政助理**：統編發票、高鐵票、報名費收據、上課證明、進修申請單影本、HR出差單、心得`},
+  {q:["公出","出差","桃竹苗","住宿費","膳費","台北","高雄","出差費","報銷","幾天"],a:`**公出 vs 出差** ✈️\n\n📍 **公出**：赴桃竹苗區域內\n📍 **出差**：赴桃竹苗以外\n\n**公假計算**：台中以北推 ±2H（最早7點）；台中以南推 ±3H（最早6:30）；含中午扣1H用餐\n\n**住宿費**：一級主管上限 $2,000；院長核實報支\n**膳費**：8H全日；4~8H半日；未滿4H不得報\n**報銷期限**：國內銷差後 **14個工作天**；國外 **30個工作天**`},
+  {q:["暴力","攻擊","BERT","激動"],a:`**病人暴力處置 🛡️**\n\n① 用「加護暴力篩檢指引表」評估\n② Kardex 加註暴力病人，特殊交班\n③ 緊急時啟動 **BERT** 或撥 **1111** 請警衛\n\n**減敏**：個人房 / 柔和燈光 / 降噪 / 眼罩 / 集中護理\n**去激化（TACT）**：口語溝通 + 同理心 + 情緒支持`},
+  {q:["ZOLL","低溫","冷凝","幫浦","食道溫","排氣"],a:`**ZOLL 低溫治療要點 ❄️**\n\n🌡️ 接**食道溫**，用藍色延長線，妥善保管\n🔵 冷凝槽蓋子：開口蓋 **3點鐘方向**\n🔧 幫浦蓋：由右至左置放，右邊卡槽注意方向\n💨 排氣後：**prime 鍵關掉**（容易忘！）\n🔌 拔插頭前：先關機器後方電源開關`},
+  {q:["密碼","電腦密碼","密碼規定","忘記密碼"],a:`**電腦密碼規定 🔒**\n\n至少 **12碼**，需包含：英文大寫、英文小寫、數字、特殊符號\n\n💡 範例：Aicu1213+1215\n\n⚠️ 容易被擋：與前兩次舊密碼太相似 / 含連續數字\n\n🆘 忘記密碼：重新申請流程繁瑣，改完務必記錄好！`},
+  {q:["案例報告","個案報告","專案報告","繳交時間","幾時繳","什麼時候繳"],a:`**報告繳交時間表 📋**\n\n| 報告 | 時間 | 繳給 |\n|------|------|------|\n| 案例報告 | **1、4、7、10月 15日** 4點前 | HN |\n| 個案報告 | **6、12月 1日** 4點前 | ND (電子檔) |\n| 專案報告 | **4、10月 1日** 4點前 | ND (電子檔) |`},
+  {q:["能力進階","進階","N4","學分","時數"],a:`**能力進階 懶人包 🍉**\n\n**時數（滿15H）**：網路上限10H / 單位內至少5H / 含跨領域 / 至少一堂院外（外傷/ACLS）/ 標四大類：專業、品質、倫理、法規\n\n**印積分**👉 https://nurse.mohw.gov.tw/sp-memb-stat-2.html\n\n**N4要求**：RRT 或 999 會議至少2場`},
+  {q:["圖書館","期刊","華藝","ProQuest","UpToDate","帳號"],a:`**圖書館資料庫帳密 📚**\n\n| 資料庫 | 帳號 | 密碼 |\n|--------|------|------|\n| 中文（華藝） | tyh2026 | 2026tyh |\n| 西文（ProQuest） | TYGHLIB | Lib2024! |\n| 藥學（Lexicomp APP） | 認證碼 | KGRX98S72UDM |`},
+  {q:["腹內壓","IAP","Foley","膀胱壓"],a:`**腹內壓（IAP）測量 🏥**\n\n器材：2-way 16號 Foley\n① 出口端先綁起來\n② 測壓組：模組CVC，壓力30\n③ 連接 Foley（穿刺軟橡膠頭）\n④ 歸零通大氣（對腋中線），病人平躺\n⑤ 注入 N/S **25mL**，在**吐氣末**讀取\n⑥ 測完放開出口端\n\n判讀：>15 mmHg ⚠️；>20 mmHg 🚨 考慮剖腹探查`},
+  {q:["確診","清消","消毒","隔離"],a:`**確診病人清消流程 🧹**\n\n1. 病人離開後，**空調繼續運轉 30 分鐘**\n2. 才可開始清消作業\n3. **清消液乾燥後**，方可接收新病人`},
+  {q:["管路效期","管路","NG效期","CVC","Foley效期"],a:`**常見管路效期 🩺**\n\n| 管路 | 效期 | 照護 |\n|------|------|------|\n| Endo | 30日 | BID |\n| NG 一般 | 14日；矽質 30日 | QD |\n| Foley 一般 | 7日；矽質 30日 | QD |\n| IC / A-line | 3日 | p.r.n |\n| CVC | 7日（依醫囑） | Q7D |`},
+  {q:["緊急應變","999","RRT","333","黑色","火災","斷氣"],a:`**AICU 緊急應變 🚨**\n\n🔴 **999/急救**：TeamI派資深護理師+醫師立即救援\n🟡 **RRT**：派護理師帶醫師，**30分鐘內**到\n🟤 **333/大量傷患**：派2名護理師+醫師，帶電擊器待命\n⚫ **黑色/暴力**：廣播「ICU黑色」，退到安全位置\n🟢 **綠色/火災**：通報119、主管(0927-505303)\n\n💨 **斷氣**：備6桶氧氣維持15分鐘；⚡ **斷電**：15秒恢復`},
+  {q:["排班","預假","換班","護病比"],a:`**排班原則 📅**\n\n**護病比**：白/小夜/大夜班均 1:2-3\n\n**預假**：上限4天（假日≦2天）；1-5日完成預班；15日公布草稿；18日16:00公布正式\n\n**資深人力**：每班資深（年資>2年/ACLS/ICU training）達 **40%**`},
+  {q:["生命徵象","vital signs","術後監測","心導管術後"],a:`**生命徵象監測常規 📊**\n\n| 情境 | 監測方式 |\n|------|----------|\n| 一般常規 | **Q1H** |\n| 手術室術後 | Q5分×1H→Q15分×4→Q30分×2→Q1H |\n| 心導管術後 | Q15分×4→Q30分×2→Q1H |\n| rt-PA後 | Q15分×8→Q30分×12→Q1H |\n| CPCR後 | Q5分×12或Q15分×8（依醫囑）|`},
+  {q:["三班","工作職責","點班","急救車"],a:`**點班原則（7本點班本）**\n\n① 包布本 ② 儀器本 ③ 急救車 ④ 衛材本\n⑤ 常備藥+藥用冰箱 ⑥ 負壓隔離房 ⑦ 血糖機矯正（大夜）\n\n**急救車**：桌面禁放非配備物品 / 每班確認氧氣鋼瓶 >50Kg/cm²\n**藥用冰箱**：每班記錄溫度；每半個月（2日、16日）大夜除霜`},
+];
+
+// ── 熱門問答統計 ─────────────────────────────
+const ALL_TOPICS = [
+  {label:"🍉 能力進階", query:"能力進階"},
+  {label:"📚 在職進修", query:"在職進修怎麼申請"},
+  {label:"✈️ 出差/公出", query:"出差和公出有什麼不同"},
+  {label:"🔒 密碼規定", query:"密碼規定"},
+  {label:"🩺 管路效期", query:"管路效期"},
+  {label:"🚨 緊急應變", query:"緊急應變怎麼辦"},
+  {label:"📋 報告繳交", query:"案例報告什麼時候要繳"},
+  {label:"📚 圖書館帳密", query:"圖書館帳號密碼"},
+  {label:"🛡️ 病人暴力", query:"病人有暴力傾向怎麼辦"},
+  {label:"❄️ ZOLL低溫", query:"ZOLL低溫治療操作"},
+  {label:"🏥 腹內壓測量", query:"腹內壓怎麼測"},
+  {label:"🧹 確診清消", query:"確診清消怎麼做"},
+  {label:"📅 排班規則", query:"排班和預假規則"},
+  {label:"📊 生命徵象", query:"生命徵象監測"},
+  {label:"🩺 三班點班", query:"三班工作職責"},
+];
+
+let clickCounts = {};
+ALL_TOPICS.forEach(t => { clickCounts[t.query] = 0; });
+
+let kbItems=[], chatLogs=[], feedbacks=[], adminEmail='jljhong@tyh.com.tw', activeTab='kb', msgId=0;
+
+const LION_HDR = 'data:image/png;base64,' + LION_HDR_B64;
+const LION_AV  = 'data:image/png;base64,' + LION_AV_B64;
+
+function initLionImgs() {
+  const h = document.getElementById('lion-hdr');
+  if (h) h.src = LION_HDR;
+}
+
+function getTop10() {
+  return [...ALL_TOPICS]
+    .sort((a,b) => (clickCounts[b.query]||0) - (clickCounts[a.query]||0))
+    .slice(0, 10);
+}
+
+function renderChips() {
+  const wrap = document.getElementById('chips');
+  wrap.innerHTML = '';
+  const top10 = getTop10();
+  top10.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    const cnt = clickCounts[item.query] || 0;
+    btn.innerHTML = `<span class="chip-rank">${i+1}</span>${item.label}${cnt>0?` <span class="chip-count">×${cnt}</span>`:''}`;
+    btn.onclick = () => qk(item.query);
+    wrap.appendChild(btn);
+  });
+}
+
+function fmt(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/https?:\/\/[^\s\)]+/g,u=>`<a href="${u}" target="_blank">${u}</a>`).replace(/\n/g,'<br>');}
+
+function findAnswer(q){const lo=q.toLowerCase();let best=null,score=0;for(const f of FAQ){const s=f.q.filter(k=>lo.includes(k)).length;if(s>score){score=s;best=f;}}for(const kb of kbItems){const kw=(kb.title+' '+kb.content).split(/[\s,，。、\n]+/);const s=kw.filter(k=>k&&lo.includes(k.toLowerCase())).length;if(s>score){score=s;best={a:'**'+kb.title+'**\n\n'+kb.content};}}return score>0?best.a:null;}
+
+async function callClaude(msg){const kbStr=[...FAQ,...kbItems.map(k=>({q:[k.title],a:k.content}))].map((f,i)=>`${i+1}. 關鍵詞：${Array.isArray(f.q)?f.q.join('、'):f.q}\n回答：${f.a}`).join('\n\n---\n\n');try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:`你是「萌萌的東元獅」，東元醫院AICU問答機器人。以下知識庫回答問仁問題；若不在範圍，請回答：「此系統沒有具備此知識，建議洽詢主管或相關單位喔 🦁」\n\n知識庫：\n${kbStr}\n\n用繁體中文，格式清楚，適時加表情符號，精簡扼要。`,messages:[{role:'user',content:msg}]})});if(!r.ok)throw new Error();const d=await r.json();return(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')||'此系統沒有具備此知識，建議洽詢主管或相關單位喔 🦁';}catch{return'此系統沒有具備此知識，建議洽詢主管或相關單位喔 🦁';}}
+
+function makeAv(){const d=document.createElement('div');d.className='m-av';const i=document.createElement('img');i.src=LION_AV;i.alt='東元獅';d.appendChild(i);return d;}
+
+function addMsg(txt,role,mid){const area=document.getElementById('chat-area');const row=document.createElement('div');row.className='msg-row '+role;const bub=document.createElement('div');bub.className='bubble '+role;bub.innerHTML=fmt(txt);if(role==='bot'){const wrap=document.createElement('div');wrap.appendChild(bub);if(mid!==undefined){const fb=document.createElement('div');fb.className='fb-row';fb.innerHTML=`<span style="font-size:11px;color:var(--color-text-tertiary)">有幫助嗎？</span><button class="fb-btn" onclick="giveFb(${mid},'g',this)"><i class="ti ti-thumb-up" style="font-size:12px;margin-right:2px" aria-hidden="true"></i>有幫助</button><button class="fb-btn" onclick="giveFb(${mid},'b',this)"><i class="ti ti-thumb-down" style="font-size:12px;margin-right:2px" aria-hidden="true"></i>沒幫助</button><button class="forward-btn" id="fwd-${mid}" onclick="forwardMsg(${mid},this)"><i class="ti ti-mail" style="font-size:12px;margin-right:2px" aria-hidden="true"></i>轉發給護理長</button>`;wrap.appendChild(fb);row.dataset.mid=mid;row.dataset.ans=txt;}row.appendChild(makeAv());row.appendChild(wrap);}else{const sp=document.createElement('div');sp.style.cssText='width:34px;flex-shrink:0;';row.appendChild(bub);row.appendChild(sp);}area.appendChild(row);area.scrollTop=area.scrollHeight;}
+
+function giveFb(mid,type,btn){const row=document.querySelector(`[data-mid="${mid}"]`);btn.closest('.fb-row').querySelectorAll('.fb-btn').forEach(b=>b.className='fb-btn');btn.classList.add(type);const e={mid,type,ans:row?row.dataset.ans:'',time:new Date().toLocaleString('zh-TW')};const i=feedbacks.findIndex(f=>f.mid===mid);if(i>=0)feedbacks[i]={...feedbacks[i],...e};else feedbacks.push(e);}
+
+async function forwardMsg(mid,btn){if(btn.classList.contains('sent'))return;const log=chatLogs.find(l=>l.id===mid);if(!log)return;const sub=encodeURIComponent('[AICU東元獅] 同仁問題轉發 - '+log.question.slice(0,30));const body=encodeURIComponent(`護理長您好，\n\n以下是同仁透過東元獅問答系統提出的問題，系統未能完整回答，煩請您協助解答。\n\n【問題】\n${log.question}\n\n【東元獅回答】\n${log.answer}\n\n【時間】\n${log.time}\n\n此信件由東元獅問答系統自動轉發。`);window.open(`mailto:${adminEmail}?subject=${sub}&body=${body}`,'_blank');btn.innerHTML='<i class="ti ti-check" style="font-size:12px;margin-right:2px" aria-hidden="true"></i>已轉發';btn.classList.add('sent');const fi=feedbacks.findIndex(f=>f.mid===mid);if(fi>=0)feedbacks[fi].forwarded=true;else feedbacks.push({mid,forwarded:true,time:new Date().toLocaleString('zh-TW')});showToast('已開啟郵件寄送視窗 📨');}
+
+function addTyping(){const area=document.getElementById('chat-area');const row=document.createElement('div');row.className='msg-row bot';row.id='typing';const bub=document.createElement('div');bub.className='bubble bot';bub.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';row.appendChild(makeAv());row.appendChild(bub);area.appendChild(row);area.scrollTop=area.scrollHeight;}
+function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
+async function send(txt){const inp=document.getElementById('msg-inp');const msg=(txt||inp.value).trim();if(!msg)return;inp.value='';inp.style.height='auto';addMsg(msg,'user');addTyping();const local=findAnswer(msg);let reply;if(local){await new Promise(r=>setTimeout(r,500));reply=local;}else{reply=await callClaude(msg);}rmTyping();const mid=++msgId;addMsg(reply,'bot',mid);chatLogs.push({id:mid,question:msg,answer:reply.replace(/<[^>]+>/g,''),time:new Date().toLocaleString('zh-TW')});}
+
+function qk(query){
+  // 統計點擊
+  if(clickCounts.hasOwnProperty(query)){
+    clickCounts[query]++;
+    renderChips();
+  }
+  send(query);
+}
+
+document.getElementById('msg-inp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+document.getElementById('msg-inp').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';});
+
+function showLogin(){document.getElementById('login-ov').style.display='flex';document.getElementById('pw').value='';document.getElementById('lerr').textContent='';setTimeout(()=>document.getElementById('pw').focus(),50);}
+function hideLogin(){document.getElementById('login-ov').style.display='none';}
+function doLogin(){if(document.getElementById('pw').value==='0717'){hideLogin();document.getElementById('app').style.display='none';document.getElementById('admin-panel').style.display='flex';tab('kb');}else{document.getElementById('lerr').textContent='密碼錯誤';document.getElementById('pw').value='';document.getElementById('pw').focus();}}
+function showChat(){document.getElementById('admin-panel').style.display='none';document.getElementById('app').style.display='flex';}
+
+function tab(t){activeTab=t;document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',['kb','top','logs','fb','cfg'][i]===t));renderAdmin();}
+function renderAdmin(){const c=document.getElementById('adm-body');c.innerHTML='';if(activeTab==='kb')renderKB(c);else if(activeTab==='top')renderTop(c);else if(activeTab==='logs')renderLogs(c);else if(activeTab==='fb')renderFb(c);else renderCfg(c);}
+
+function renderKB(c){const t=document.createElement('div');t.className='sec-ttl';t.textContent='新增知識';c.appendChild(t);const drop=document.createElement('div');drop.className='drop-z';drop.innerHTML='<i class="ti ti-upload" style="font-size:22px;margin-bottom:5px;display:block" aria-hidden="true"></i>拖曳文字檔案到此<br><span style="font-size:11px">或點擊選擇檔案（.txt .csv .md）</span>';drop.onclick=()=>document.getElementById('fp').click();drop.ondragover=e=>{e.preventDefault();drop.classList.add('ov');};drop.ondragleave=()=>drop.classList.remove('ov');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('ov');if(e.dataTransfer.files[0])readF(e.dataTransfer.files[0]);};c.appendChild(drop);const fi=document.createElement('input');fi.type='file';fi.id='fp';fi.accept='.txt,.csv,.md';fi.style.display='none';fi.onchange=e=>{if(e.target.files[0])readF(e.target.files[0]);};c.appendChild(fi);const ta=document.createElement('textarea');ta.className='kb-ta';ta.id='kbt';ta.placeholder='或直接貼上 / 輸入知識內容（第一行將作為標題）...';c.appendChild(ta);const ab=document.createElement('button');ab.className='add-btn';ab.innerHTML='<i class="ti ti-plus" style="font-size:13px;margin-right:4px" aria-hidden="true"></i>加入知識庫';ab.onclick=addKB;c.appendChild(ab);const t2=document.createElement('div');t2.className='sec-ttl';t2.style.marginTop='4px';t2.textContent=`知識庫（${kbItems.length} 筆）`;c.appendChild(t2);if(!kbItems.length){const e=document.createElement('div');e.className='empty';e.textContent='知識庫目前是空的';c.appendChild(e);}kbItems.forEach((item,i)=>{const d=document.createElement('div');d.className='kb-item';d.innerHTML=`<div class="kb-hdr"><div class="kb-ttl">${item.title}</div><div class="kb-date">${item.date}</div><button class="del-btn" onclick="delKB(${i})" aria-label="刪除"><i class="ti ti-x" aria-hidden="true"></i></button></div><div class="kb-desc">${item.desc}</div>`;c.appendChild(d);});}
+
+function renderTop(c){const t=document.createElement('div');t.className='sec-ttl';t.textContent='🔥 熱門問答排行（依點擊次數）';c.appendChild(t);const top15=[...ALL_TOPICS].sort((a,b)=>(clickCounts[b.query]||0)-(clickCounts[a.query]||0));top15.forEach((item,i)=>{const cnt=clickCounts[item.query]||0;const d=document.createElement('div');d.className='top-item';const rankClass=i===0?'top-rank gold':i===1?'top-rank silver':i===2?'top-rank bronze':'top-rank';d.innerHTML=`<div class="${rankClass}">${i+1}</div><div class="top-q">${item.label}</div><div class="top-cnt">${cnt} 次點擊</div>`;c.appendChild(d);});}
+
+function readF(f){const r=new FileReader();r.onload=e=>{document.getElementById('kbt').value=e.target.result;};r.readAsText(f,'utf-8');}
+function addKB(){const txt=document.getElementById('kbt').value.trim();if(!txt)return;const lines=txt.split('\n').filter(l=>l.trim());const title=lines[0].replace(/^[#\*\-\s]+/,'').slice(0,50)||'自訂知識';const desc=lines.slice(1).join(' ').slice(0,90)+(txt.length>90?'…':'');kbItems.push({title,content:txt,desc,date:new Date().toLocaleDateString('zh-TW')});document.getElementById('kbt').value='';showToast('✅ 知識已加入！');renderAdmin();}
+function delKB(i){kbItems.splice(i,1);renderAdmin();}
+
+function renderLogs(c){const t=document.createElement('div');t.className='sec-ttl';t.textContent=`問答記錄（${chatLogs.length} 則）`;c.appendChild(t);if(!chatLogs.length){const e=document.createElement('div');e.className='empty';e.textContent='還沒有問答記錄';c.appendChild(e);return;}[...chatLogs].reverse().forEach(log=>{const fb=feedbacks.find(f=>f.mid===log.id);const ftype=fb?.type||'';const fwd=fb?.forwarded;const badge=ftype==='g'?'<span class="fb-badge g">👍 有幫助</span>':ftype==='b'?'<span class="fb-badge b">👎 沒幫助</span>':fwd?'<span class="fb-badge fwd">📨 已轉發</span>':'<span class="fb-badge n">－</span>';const d=document.createElement('div');d.className='log-item';d.innerHTML=`<div class="log-q">${log.question}</div><div class="log-a">${log.answer.slice(0,120)}${log.answer.length>120?'…':''}</div><div class="log-meta"><span>${log.time}</span>${badge}</div>`;c.appendChild(d);});}
+
+function renderFb(c){const good=feedbacks.filter(f=>f.type==='g').length,bad=feedbacks.filter(f=>f.type==='b').length,fwd=feedbacks.filter(f=>f.forwarded).length,total=chatLogs.length,pct=total>0?Math.round((good/total)*100):0;const t=document.createElement('div');t.className='sec-ttl';t.textContent='匿名回饋統計';c.appendChild(t);const row=document.createElement('div');row.className='stat-row';row.innerHTML=`<div class="stat-card"><div class="stat-n" style="color:#1D9E75">${good}</div><div class="stat-l">👍 有幫助</div></div><div class="stat-card"><div class="stat-n" style="color:#D85A30">${bad}</div><div class="stat-l">👎 沒幫助</div></div><div class="stat-card"><div class="stat-n">${total}</div><div class="stat-l">總問答數</div></div><div class="stat-card"><div class="stat-n" style="color:#534AB7">${pct}%</div><div class="stat-l">滿意率</div></div>`;c.appendChild(row);if(fwd){const r2=document.createElement('div');r2.className='stat-row';r2.innerHTML=`<div class="stat-card" style="flex:none;width:100%"><div class="stat-n" style="color:#3C3489">${fwd}</div><div class="stat-l">📨 已轉發護理長</div></div>`;c.appendChild(r2);}const t2=document.createElement('div');t2.className='sec-ttl';t2.style.marginTop='8px';t2.textContent='負面回饋明細';c.appendChild(t2);const bads=feedbacks.filter(f=>f.type==='b');if(!bads.length){const e=document.createElement('div');e.className='empty';e.textContent='目前沒有負面回饋 🎉';c.appendChild(e);return;}bads.forEach(f=>{const d=document.createElement('div');d.className='log-item';d.innerHTML=`<div style="font-size:11px;color:#D85A30;margin-bottom:3px;font-weight:500">👎 同仁覺得沒幫助</div><div class="log-a">${(f.ans||'').slice(0,100)}…</div><div class="log-meta">${f.time}</div>`;c.appendChild(d);});}
+
+function renderCfg(c){const t=document.createElement('div');t.className='sec-ttl';t.textContent='轉發護理長信箱設定';c.appendChild(t);const row=document.createElement('div');row.className='email-row';const inp=document.createElement('input');inp.type='email';inp.className='email-inp';inp.id='email-inp';inp.value=adminEmail;inp.placeholder='護理長 Email...';const btn=document.createElement('button');btn.className='save-btn';btn.textContent='儲存';btn.onclick=()=>{const v=document.getElementById('email-inp').value.trim();if(!v)return;adminEmail=v;showToast('✅ 信箱已儲存：'+v);};row.appendChild(inp);row.appendChild(btn);c.appendChild(row);const note=document.createElement('div');note.style.cssText='font-size:12px;color:var(--color-text-secondary);line-height:1.5;';note.textContent='當同仁點擊「轉發給護理長」按鈕時，系統會開啟電子郵件視窗，將對話紀錄寄送至此信箱。';c.appendChild(note);}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>{t.style.display='none';},2500);}
+
+window.addEventListener('load',()=>{
+  initLionImgs();
+  renderChips();
+  const area=document.getElementById('chat-area');
+  const tl=document.createElement('div');tl.className='time-lbl';tl.textContent='今天';area.appendChild(tl);
+  setTimeout(()=>{addMsg(`嗨嗨！我是萌萌的東元獅 🦁\n\nAICU 同仁的專屬小幫手，你可以問我：\n- 在職進修 / 出差 / 公出 申請流程\n- 能力進階、報告繳交時間\n- 管路效期、三班工作常規、生命徵象\n- 緊急應變（999/RRT/333/黑色/綠色）\n- ZOLL低溫、腹內壓、清消流程\n- 病人暴力處置、圖書館帳密、密碼規定\n\n點下面的熱門按鈕，或直接輸入問題！😊`,'bot');},300);
+});
+</script>
